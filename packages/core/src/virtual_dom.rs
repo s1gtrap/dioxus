@@ -433,16 +433,22 @@ impl VirtualDom {
         // This will cause all the flush wakers to immediately spring to life, which we will off with process_events
         self.runtime.release_flush_lock();
 
+        tracing::trace!("poll_tasks({:p})", self);
         loop {
+            tracing::trace!("processing events...");
             // Process all events - Scopes are marked dirty, etc
             // Sometimes when wakers fire we get a slew of updates at once, so its important that we drain this completely
             self.process_events();
 
+            tracing::trace!("self.dirty_scioes = {:?}", self.dirty_scopes);
+
             // Now that we have collected all queued work, we should check if we have any dirty scopes. If there are not, then we can poll any queued futures
             if !self.dirty_scopes.is_empty() {
+                tracing::trace!("no dirty, returning early!");
                 return;
             }
 
+            tracing::trace!("creating guard...");
             // Make sure we set the runtime since we're running user code
             let _runtime = RuntimeGuard::new(self.runtime.clone());
 
@@ -450,12 +456,21 @@ impl VirtualDom {
             // When we're doing awaiting the rx, the lock will be dropped and tasks waiting on the lock will get waked
             // We have to own the lock since poll_tasks is cancel safe - the future that this is running in might get dropped
             // and if we held the lock in the scope, the lock would also get dropped prematurely
+            tracing::trace!("releasing flush lock...");
             self.runtime.release_flush_lock();
+            tracing::trace!("acquiring flush lock...");
             self.runtime.acquire_flush_lock();
 
+            tracing::trace!("awaiting msg...");
             match self.rx.next().await.expect("channel should never close") {
-                SchedulerMsg::Immediate(id) => self.mark_dirty(id),
-                SchedulerMsg::TaskNotified(id) => _ = self.runtime.handle_task_wakeup(id),
+                SchedulerMsg::Immediate(id) => {
+                    tracing::trace!("was immediate, marking dirty...");
+                    self.mark_dirty(id)
+                }
+                SchedulerMsg::TaskNotified(id) => {
+                    tracing::trace!("was task notified, handling task wakeup...");
+                    _ = self.runtime.handle_task_wakeup(id)
+                }
             };
         }
     }
