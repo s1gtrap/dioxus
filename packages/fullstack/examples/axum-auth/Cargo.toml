@@ -18,13 +18,13 @@ tower-http = { version = "0.4.1", features = ["auth"], optional = true }
 simple_logger = { version = "4.2.0", optional = true }
 async-trait = { version = "0.1.71", optional = true }
 sqlx = { version = "0.7.0", features = [
-    "macros",
-    "migrate",
-    "postgres",
-    "sqlite",
-    "_unstable-all-types",
-    "tls-rustls",
-    "runtime-tokio",
+  "macros",
+  "migrate",
+  "postgres",
+  "sqlite",
+  "_unstable-all-types",
+  "tls-rustls",
+  "runtime-tokio",
 ], optional = true }
 anyhow = "1.0.71"
 http = { version = "0.2.9", optional = true }
@@ -36,11 +36,24 @@ features = ["sqlite-rustls"]
 optional = true
 
 [dependencies.axum_session_auth]
-version = "0.3.0"
+git = "https://github.com/AscendingCreations/AxumSessionAuth.git"
+rev = "7d7b2831d7bcd517b3b703d8f73ed6c23625ae67"
 features = ["sqlite-rustls"]
 optional = true
 
 [features]
 default = []
-ssr = ["axum", "tokio", "dioxus-fullstack/axum", "tower-http", "simple_logger", "async-trait", "sqlx", "axum_session", "axum_session_auth", "http", "tower"]
+ssr = [
+  "axum",
+  "tokio",
+  "dioxus-fullstack/axum",
+  "tower-http",
+  "simple_logger",
+  "async-trait",
+  "sqlx",
+  "axum_session",
+  "axum_session_auth",
+  "http",
+  "tower",
+]
 web = ["dioxus-web"]
