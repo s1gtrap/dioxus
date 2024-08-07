@@ -133,6 +133,7 @@ impl Default for DioxusConfig {
                 https: WebHttpsConfig {
                     enabled: None,
                     mkcert: None,
+                    mkcert_extras: None,
                     key_path: None,
                     cert_path: None,
                 },
@@ -359,6 +360,7 @@ pub struct WebDevResourceConfig {
 pub struct WebHttpsConfig {
     pub enabled: Option<bool>,
     pub mkcert: Option<bool>,
+    pub mkcert_extras: Option<Vec<String>>,
     pub key_path: Option<String>,
     pub cert_path: Option<String>,
 }

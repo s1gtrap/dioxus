@@ -549,16 +549,20 @@ pub fn get_rustls_with_mkcert(web_config: &WebHttpsConfig) -> Result<(String, St
     }
 
     let cmd = Command::new("mkcert")
-        .args([
-            "-install",
-            "-key-file",
-            &key_path,
-            "-cert-file",
-            &cert_path,
-            "localhost",
-            "::1",
-            "127.0.0.1",
-        ])
+        .args(
+            [
+                "-install",
+                "-key-file",
+                &key_path,
+                "-cert-file",
+                &cert_path,
+                "localhost",
+                "::1",
+                "127.0.0.1",
+            ]
+            .into_iter()
+            .chain(web_config.mkcert_extras.unwrap_or(vec![])),
+        )
         .spawn();
 
     match cmd {
